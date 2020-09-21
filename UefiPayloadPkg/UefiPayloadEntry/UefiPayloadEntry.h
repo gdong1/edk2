@@ -31,6 +31,8 @@
 #include <Guid/MemoryMapInfoGuid.h>
 #include <Guid/AcpiBoardInfoGuid.h>
 #include <Guid/GraphicsInfoHob.h>
+#include <Guid/AcpiTableGuid.h>
+#include <Guid/SmbiosTableGuid.h>
 
 
 #define LEGACY_8259_MASK_REGISTER_MASTER  0x21

@@ -60,10 +60,11 @@
 [Guids]
   gEfiMemoryTypeInformationGuid
   gEfiFirmwareFileSystem2Guid
-  gUefiSystemTableInfoGuid
+  #gUefiSystemTableInfoGuid
   gEfiGraphicsInfoHobGuid
   gEfiGraphicsDeviceInfoHobGuid
   gUefiAcpiBoardInfoGuid
+  gEfiAcpi20TableGuid
 
 [FeaturePcd.IA32]
   gEfiMdeModulePkgTokenSpaceGuid.PcdDxeIplSwitchToLongMode      ## CONSUMES

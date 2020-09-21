@@ -77,39 +77,6 @@ GetGuidHobDataFromSbl (
 }
 
 /**
-  Acquire the memory map information.
-
-  @param  MemInfoCallback     The callback routine
-  @param  Params              Pointer to the callback routine parameter
-
-  @retval RETURN_SUCCESS     Successfully find out the memory information.
-  @retval RETURN_NOT_FOUND   Failed to find the memory information.
-
-**/
-RETURN_STATUS
-EFIAPI
-ParseMemoryInfo (
-  IN  BL_MEM_INFO_CALLBACK       MemInfoCallback,
-  IN  VOID                       *Params
-  )
-{
-  MEMROY_MAP_INFO               *MemoryMapInfo;
-  UINTN                          Idx;
-
-  MemoryMapInfo = (MEMROY_MAP_INFO *) GetGuidHobDataFromSbl (&gLoaderMemoryMapInfoGuid);
-  if (MemoryMapInfo == NULL) {
-    ASSERT (FALSE);
-    return RETURN_NOT_FOUND;
-  }
-
-  for (Idx = 0; Idx < MemoryMapInfo->Count; Idx++) {
-    MemInfoCallback (&MemoryMapInfo->Entry[Idx], Params);
-  }
-
-  return RETURN_SUCCESS;
-}
-
-/**
   Acquire acpi table and smbios table from slim bootloader
 
   @param  SystemTableInfo           Pointer to the system table info
@@ -162,61 +129,6 @@ ParseSerialInfo (
   }
 
   CopyMem (SerialPortInfo, BlSerialInfo, sizeof (SERIAL_PORT_INFO));
-
-  return RETURN_SUCCESS;
-}
-
-
-/**
-  Find the video frame buffer information
-
-  @param  GfxInfo             Pointer to the EFI_PEI_GRAPHICS_INFO_HOB structure
-
-  @retval RETURN_SUCCESS     Successfully find the video frame buffer information.
-  @retval RETURN_NOT_FOUND   Failed to find the video frame buffer information .
-
-**/
-RETURN_STATUS
-EFIAPI
-ParseGfxInfo (
-  OUT EFI_PEI_GRAPHICS_INFO_HOB       *GfxInfo
-  )
-{
-  EFI_PEI_GRAPHICS_INFO_HOB           *BlGfxInfo;
-
-  BlGfxInfo = (EFI_PEI_GRAPHICS_INFO_HOB *) GetGuidHobDataFromSbl (&gEfiGraphicsInfoHobGuid);
-  if (BlGfxInfo == NULL) {
-    return RETURN_NOT_FOUND;
-  }
-
-  CopyMem (GfxInfo, BlGfxInfo, sizeof (EFI_PEI_GRAPHICS_INFO_HOB));
-
-  return RETURN_SUCCESS;
-}
-
-/**
-  Find the video frame buffer device information
-
-  @param  GfxDeviceInfo      Pointer to the EFI_PEI_GRAPHICS_DEVICE_INFO_HOB structure
-
-  @retval RETURN_SUCCESS     Successfully find the video frame buffer information.
-  @retval RETURN_NOT_FOUND   Failed to find the video frame buffer information.
-
-**/
-RETURN_STATUS
-EFIAPI
-ParseGfxDeviceInfo (
-  OUT EFI_PEI_GRAPHICS_DEVICE_INFO_HOB       *GfxDeviceInfo
-  )
-{
-  EFI_PEI_GRAPHICS_DEVICE_INFO_HOB           *BlGfxDeviceInfo;
-
-  BlGfxDeviceInfo = (EFI_PEI_GRAPHICS_DEVICE_INFO_HOB *) GetGuidHobDataFromSbl (&gEfiGraphicsDeviceInfoHobGuid);
-  if (BlGfxDeviceInfo == NULL) {
-    return RETURN_NOT_FOUND;
-  }
-
-  CopyMem (GfxDeviceInfo, BlGfxDeviceInfo, sizeof (EFI_PEI_GRAPHICS_DEVICE_INFO_HOB));
 
   return RETURN_SUCCESS;
 }
