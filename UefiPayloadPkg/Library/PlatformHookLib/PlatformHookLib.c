@@ -33,22 +33,15 @@ PlatformHookSerialPortInitialize (
   )
 {
   RETURN_STATUS         Status;
-  //EFI_HOB_GUID_TYPE     *GuidHob;
   SERIAL_PORT_INFO      *SerialPortInfo;
+  UINT8                 *GuidHob;
 
-  SERIAL_PORT_INFO      ParseSerialPortInfo;
-
-  Status = ParseSerialInfo (&ParseSerialPortInfo);
-  if (RETURN_ERROR (Status)) {
-    return Status;
+  GuidHob = GetNextGuidHob (&gUefiSerialPortInfoGuid, (VOID*)(UINTN)GET_BOOTLOADER_PARAMETER ());
+  if (GuidHob == NULL) {
+    return EFI_NOT_FOUND;
   }
+  SerialPortInfo  = (SERIAL_PORT_INFO *) GET_GUID_HOB_DATA (GuidHob);
 
-  //GuidHob = GetNextGuidHob (&gUefiSerialPortInfoGuid, GetHobList ());
-  //if (GuidHob != NULL) {
-  //  SerialPortInfo  = (SERIAL_PORT_INFO *) GET_GUID_HOB_DATA (GuidHob);
-  //}
-  
-  SerialPortInfo = &ParseSerialPortInfo;
   Status = PcdSetBoolS (PcdSerialUseMmio, SerialPortInfo->UseMmio);
   if (RETURN_ERROR (Status)) {
     return Status;

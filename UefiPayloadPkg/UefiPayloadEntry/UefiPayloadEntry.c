@@ -9,150 +9,6 @@
 
 
 /**
-   Transfers control to DxeCore.
-
-   This function performs a CPU architecture specific operations to execute
-   the entry point of DxeCore with the parameters of HobList.
-
-   @param DxeCoreEntryPoint         The entry point of DxeCore.
-   @param HobList                   The start of HobList passed to DxeCore.
-
-**/
-VOID
-HandOffToDxeCore (
-  IN EFI_PHYSICAL_ADDRESS   DxeCoreEntryPoint,
-  IN EFI_PEI_HOB_POINTERS   HobList
-  );
-
-/**
-  Add HOB into HOB list
-
-  @param[in]  Hob    The HOB to be added into the HOB list.
-**/
-VOID
-EFIAPI
-AddNewHob (
-  IN EFI_PEI_HOB_POINTERS    *Hob
-  );
-
-
-CONST CHAR8  mHex[]   = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-
-/**
-  Dump a binary block using HEX byte format (16 bytes per line).
-
-  @param[in]  Indent      Indent space for each line (16 bytes).
-  @param[in]  Offset      Offset from the data buffer pointer.
-  @param[in]  DataSize    Data buffer size.
-  @param[in]  UserData    Pointer to the data buffer.
-
-**/
-VOID
-DumpHex (
-  IN UINTN        Indent,
-  IN UINTN        Offset,
-  IN UINTN        DataSize,
-  IN VOID         *UserData
-  )
-{
-  DEBUG_CODE_BEGIN();
-
-  UINT8 *Data;
-
-  CHAR8 Val[50];
-
-  CHAR8 Str[20];
-
-  UINT8 TempByte;
-  UINTN Size;
-  UINTN Index;
-
-  if (UserData == NULL){
-    return;
-  }
-
-  Data = UserData;
-  while (DataSize != 0) {
-    Size = 16;
-    if (Size > DataSize) {
-      Size = DataSize;
-    }
-
-    for (Index = 0; Index < Size; Index += 1) {
-      TempByte            = Data[Index];
-      Val[Index * 3 + 0]  = mHex[TempByte >> 4];
-      Val[Index * 3 + 1]  = mHex[TempByte & 0xF];
-      Val[Index * 3 + 2]  = (CHAR8) ((Index == 7) ? '-' : ' ');
-      Str[Index]          = (CHAR8) ((TempByte < ' ' || TempByte > 'z') ? '.' : TempByte);
-    }
-
-    Val[Index * 3]  = 0;
-    Str[Index]      = 0;
-    DEBUG ((DEBUG_INFO, "%*a%08X: %-48a *%a*\n", Indent, "", Offset, Val, Str));
-
-    Data += Size;
-    Offset += Size;
-    DataSize -= Size;
-  }
-
-  DEBUG_CODE_END();
-}
-
-
-
-/**
-  Dump a binary block using HEX byte format (16 bytes per line).
-
-  @param[in]  Indent      Indent space for each line (16 bytes).
-
-**/
-VOID
-DumpHobList (
-  IN UINT8         *HobList
-  )
-{
-  DEBUG_CODE_BEGIN();
-  EFI_PEI_HOB_POINTERS          Hob;
-  UINT32                       Index;
-
-  Index   = 0;
-  Hob.Raw = (UINT8 *) HobList;
-  ASSERT (Hob.Raw != NULL);
-  while (!END_OF_HOB_LIST (Hob)) {
-    Hob.Raw = GET_NEXT_HOB (Hob);
-    // Add this hob to payload HOB
-    DEBUG ((EFI_D_ERROR, "%d: HobType = 0x%x, HobLength = 0x%x,  %p\n",Index++, Hob.Header->HobType, Hob.Header->HobLength, Hob.Header));
-    if (Hob.Header->HobType == EFI_HOB_TYPE_MEMORY_ALLOCATION) {
-      DEBUG ((EFI_D_ERROR, "   Memory allocation: base = 0x%lx, Length = 0x%lx, type = 0x%x\n",
-          Hob.MemoryAllocation->AllocDescriptor.MemoryBaseAddress, 
-          Hob.MemoryAllocation->AllocDescriptor.MemoryLength, 
-          Hob.MemoryAllocation->AllocDescriptor.MemoryType));
-    }
-
-    if (Hob.Header->HobType == EFI_HOB_TYPE_RESOURCE_DESCRIPTOR) {
-      DEBUG ((EFI_D_ERROR, "   Memory resource: start = 0x%lx, Length = 0x%lx, type = 0x%x\n",
-          Hob.ResourceDescriptor->PhysicalStart,
-          Hob.ResourceDescriptor->ResourceLength, 
-          Hob.ResourceDescriptor->ResourceType,
-          Hob.ResourceDescriptor->ResourceAttribute));
-    }
-
-    if (Hob.Header->HobType == EFI_HOB_TYPE_GUID_EXTENSION) {
-      DEBUG ((EFI_D_ERROR, "   GUID: guid = 0x%g\n",
-          &Hob.Guid->Name));
-    }
-
-    if (Hob.Header->HobType == EFI_HOB_TYPE_FV) {
-      DEBUG ((EFI_D_ERROR, "   FV: Base = 0x%lx, Length = 0x%lx\n",
-          Hob.FirmwareVolume->BaseAddress,
-          Hob.FirmwareVolume->Length));
-    }
-  }
-  DEBUG_CODE_END();
-}
-
-
-/**
   Find the board related info from ACPI table
 
   @param  AcpiBoardInfo          Pointer to the acpi board info strucutre
@@ -393,7 +249,6 @@ PayloadEntry (
   UINTN                         HobMemSize;
   EFI_PEI_HOB_POINTERS          Hob;
 
-  // TODO: should init serial port firstly based on serial HOB.
   DEBUG ((EFI_D_ERROR, "GET_BOOTLOADER_PARAMETER() = 0x%lx\n", GET_BOOTLOADER_PARAMETER()));
   DEBUG ((EFI_D_ERROR, "sizeof(UINTN) = 0x%x\n", sizeof(UINTN)));
 
@@ -404,21 +259,16 @@ PayloadEntry (
   HobMemBase      = ALIGN_VALUE (PcdGet32 (PcdPayloadFdMemBase) + PcdGet32 (PcdPayloadFdMemSize), SIZE_1MB);
   HobMemSize      = FixedPcdGet32 (PcdSystemMemoryUefiRegionSize);
   HandoffHobTable = HobConstructor ((VOID *)HobMemBase, HobMemSize, (VOID *)HobMemBase, (VOID *)(HobMemBase + HobMemSize));
-
   DEBUG ((EFI_D_ERROR, "HobMemBase = 0x%x, HobMemSize = 0x%x\n", HobMemBase, HobMemSize));
 
   // Build HOB based on information from Bootloader
   Status = BuildHobFromBl ();
   if (EFI_ERROR (Status)) {
-    DEBUG ((EFI_D_ERROR, "BuildHobFromBl Status = %r\n", Status));
     return Status;
   }
 
   // The UEFI payload FV
   BuildMemoryAllocationHob (PcdGet32 (PcdPayloadFdMemBase), PcdGet32 (PcdPayloadFdMemSize), EfiBootServicesData);
-
-//  DEBUG ((EFI_D_ERROR, "\n\n-updated new HOB list\n"));
-//  DumpHex (2, 0, 0x1500, (UINT8 *)GetHobList());
 
   // Load the DXE Core
   Status = LoadDxeCore (&DxeCoreEntryPoint);

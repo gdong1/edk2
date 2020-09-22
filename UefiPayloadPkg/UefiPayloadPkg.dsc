@@ -196,7 +196,7 @@
 !if $(BOOTLOADER) == "COREBOOT"
   BlParseLib|UefiPayloadPkg/Library/CbParseLib/CbParseLib.inf
 !else
-  BlParseLib|UefiPayloadPkg/Library/SblParseLib/SblParseLib.inf
+  #BlParseLib|UefiPayloadPkg/Library/SblParseLib/SblParseLib.inf
 !endif
 
   DebugLib|MdePkg/Library/BaseDebugLibSerialPort/BaseDebugLibSerialPort.inf

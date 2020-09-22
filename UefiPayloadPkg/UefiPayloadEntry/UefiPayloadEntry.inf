@@ -51,7 +51,6 @@
   BaseLib
   SerialPortLib
   IoLib
-  BlParseLib
   HobLib
   PeCoffLib
   PlatformSupportLib

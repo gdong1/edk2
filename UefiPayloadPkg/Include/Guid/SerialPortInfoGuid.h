@@ -1,7 +1,7 @@
 /** @file
   This file defines the hob structure for serial port.
 
-  Copyright (c) 2014 - 2019, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2020, Intel Corporation. All rights reserved.<BR>
   SPDX-License-Identifier: BSD-2-Clause-Patent
 
 **/
@@ -14,6 +14,7 @@
 ///
 extern EFI_GUID gUefiSerialPortInfoGuid;
 
+#pragma pack(1)
 typedef struct {
   UINT16        Reversion;
   BOOLEAN       UseMmio;
@@ -21,5 +22,6 @@ typedef struct {
   UINT32        BaudRate;
   UINT64        RegisterBase;
 } SERIAL_PORT_INFO;
+#pragma pack()
 
 #endif
