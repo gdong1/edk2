@@ -244,7 +244,6 @@ PayloadEntry (
 {
   EFI_STATUS                    Status;
   PHYSICAL_ADDRESS              DxeCoreEntryPoint;
-  EFI_HOB_HANDOFF_INFO_TABLE    *HandoffHobTable;
   UINTN                         HobMemBase;
   UINTN                         HobMemSize;
   EFI_PEI_HOB_POINTERS          Hob;
@@ -258,7 +257,7 @@ PayloadEntry (
   // Init the region for HOB and memory allocation for this module
   HobMemBase      = ALIGN_VALUE (PcdGet32 (PcdPayloadFdMemBase) + PcdGet32 (PcdPayloadFdMemSize), SIZE_1MB);
   HobMemSize      = FixedPcdGet32 (PcdSystemMemoryUefiRegionSize);
-  HandoffHobTable = HobConstructor ((VOID *)HobMemBase, HobMemSize, (VOID *)HobMemBase, (VOID *)(HobMemBase + HobMemSize));
+  HobConstructor ((VOID *)HobMemBase, HobMemSize, (VOID *)HobMemBase, (VOID *)(HobMemBase + HobMemSize));
   DEBUG ((EFI_D_ERROR, "HobMemBase = 0x%x, HobMemSize = 0x%x\n", HobMemBase, HobMemSize));
 
   // Build HOB based on information from Bootloader
